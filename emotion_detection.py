@@ -1,4 +1,6 @@
 import requests
+import json
+import operator
 
 def emotion_detector(text_to_analyse):
     # define the require parameter
@@ -8,4 +10,23 @@ def emotion_detector(text_to_analyse):
 
     # send request to server, then return the result
     response = requests.post(url, json = myobj, headers=header)
-    return response.text
+
+    # parsing the JSON reqponse
+    formatted_response = json.loads(response.text)
+
+    # extracting emotion from response
+    emotion = formatted_response['emotionPredictions'][0]['emotion']
+
+    # finding the highest score
+    highest_emotion = max(emotion.items(), key=operator.itemgetter(1))
+
+    resp = {
+        "anger": emotion['anger'],
+        "disgust": emotion['disgust'],
+        "fear": emotion['fear'],
+        "joy": emotion['joy'],
+        "sadness": emotion['sadness'],
+        "dominant_emotion": highest_emotion[0]
+    }
+
+    return resp
